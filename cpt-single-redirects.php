@@ -1,26 +1,24 @@
 <?php
 
-// Security
-defined( 'ABSPATH' ) OR exit;
-
 /**
  * Plugin Name: CPT Single Redirects
  * Text Domain: cpt_single_redirects
- * Description: This plugin allows the redirection of CPT Single Templates.
+ * Description: This plugin allows the redirection of CPT Single Templates to any URL.
  * Plugin URI: https://github.com/cortesfrau/cpt-single-redirects/
  * Version: 1.0.0
  * Author: Lluís Cortès
  * Author URI: https://lluiscortes.com
+ * License: GPLv2 or later
+ * Domain Path: /languages
  */
 
 
-// Activation, Deactivation, Uninstall
-register_uninstall_hook( __FILE__, ['CPT_Single_Redirects', 'uninstall'] );
+// Exit if accessed directly
+if ( ! defined( 'ABSPATH' ) ) exit;
 
 
-// Plugin's class
+// Plugin Main Class
 class CPT_Single_Redirects {
-
 
   // Construct
   public function __construct() {
@@ -34,23 +32,15 @@ class CPT_Single_Redirects {
     // Template redirection
     add_action( 'template_redirect', [$this, 'template_redirection'] );
 
+    // Admin Scripts & Styles
+    add_action( 'admin_enqueue_scripts', [$this, 'admin_scripts_styles'] );
+
   }
 
 
-  // Plugin Unistall
-  public static function uninstall() {
-    if ( ! current_user_can( 'activate_plugins' ) ) {
-      return;
-    }
-
-    check_admin_referer( 'bulk-plugins' );
-
-    if ( __FILE__ != WP_UNINSTALL_PLUGIN ) {
-      return;
-    }
-
-    // Delete Options
-    delete_option( 'cpt_single_redirects' );
+  // Admin Scripts & Styles
+  function admin_scripts_styles() {
+    wp_enqueue_style( 'admin-css', plugins_url( '/css/admin.css', __FILE__ ), array(), '1.0.0' );
   }
 
 
@@ -82,6 +72,13 @@ class CPT_Single_Redirects {
   // Get CTP Objects
   public function get_cpt_objects() {
 
+    // Custom post types created by widely used plugins that we want to ignore
+    $cpt_to_ignore = [
+      'acf-field-group',
+      'acf-field',
+      'wpcf7_contact_form',
+    ];
+
     // Registered custom post types
     $args = [
       '_builtin' => false,
@@ -91,10 +88,11 @@ class CPT_Single_Redirects {
     // CPT Objects
     $cpt_objects = [];
     foreach ( $custom_post_types as $slug ) {
-
-     $cpt_objects[] = get_post_type_object($slug);
-
+      if ( !in_array( $slug, $cpt_to_ignore ) ) {
+        $cpt_objects[] = get_post_type_object($slug);
+      }
     }
+
     return $cpt_objects;
   }
 
@@ -109,14 +107,19 @@ class CPT_Single_Redirects {
 
     <div class="wrap">
       <h1>CPT Single Redirects</h1>
-      <p><?php echo __( 'Here you can set up the desired redirection for each custom post type single template.', 'cpt_single_redirects' ); ?></p>
+      <p><?php echo __( 'Here you can set up the desired redirection for the single template of registered custom post types. Leave blank if you do not want to set any redirection.', 'cpt_single_redirects' ); ?></p>
 
       <form method="post" action="options.php">
 
         <?php settings_fields( 'cpt-single-redirects-settings' ); ?>
         <?php do_settings_sections( 'cpt-single-redirects-settings' ); ?>
 
-        <table>
+        <table id="cpt-single-redirects-table">
+
+          <tr>
+            <th><?php echo __( 'Custom Post Type', 'cpt_single_redirects' ); ?></th>
+            <th><?php echo __( 'Redirection URL', 'cpt_single_redirects' ); ?></th>
+          </tr>
 
           <?php foreach ( $this->get_cpt_objects() as $cpt ) {
 
@@ -127,12 +130,14 @@ class CPT_Single_Redirects {
 
             ?>
 
-            <p>
-              <label for="<?php echo $cpt_slug . '-redirect'; ?>"><?php echo $cpt_label; ?></label>
-              <input type="text" name="cpt_single_redirects[<?php echo  $cpt_slug; ?>]" id="<?php echo $cpt_slug . '-redirect'; ?>" value="<?php echo $redirection_value; ?>">
-            </p>
+            <tr>
+              <td><label for="<?php echo $cpt_slug . '-redirect'; ?>"><?php echo $cpt_label; ?></label></td>
+              <td><input type="url" name="cpt_single_redirects[<?php echo  $cpt_slug; ?>]" id="<?php echo $cpt_slug . '-redirect'; ?>" value="<?php echo $redirection_value; ?>"></td>
+            </tr>
 
           <?php } ?>
+
+        </table>
 
         <?php submit_button(); ?>
 
@@ -148,11 +153,13 @@ class CPT_Single_Redirects {
     // Settings Data
     $cpt_single_redirects = $this->get_settings();
 
+    // Redirection for each CPT
     foreach ( $cpt_single_redirects as $cpt_slug => $redirection ) {
       if ( is_singular( $cpt_slug ) ) {
         wp_redirect( $redirection, 301 );
       }
     }
+
     return;
   }
 
@@ -161,5 +168,3 @@ class CPT_Single_Redirects {
 
 // Instantiation
 $cpt_single_redirects = new CPT_Single_Redirects();
-
-
