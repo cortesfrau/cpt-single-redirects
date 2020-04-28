@@ -7,6 +7,7 @@ defined( 'ABSPATH' ) OR exit;
  * Plugin Name: CPT Single Redirects
  * Text Domain: cpt_single_redirects
  * Description: This plugin allows the redirection of CPT Single Templates.
+ * Plugin URI: https://github.com/cortesfrau/cpt-single-redirects/
  * Version: 1.0.0
  * Author: Lluís Cortès
  * Author URI: https://lluiscortes.com
@@ -26,7 +27,6 @@ class CPT_Single_Redirects {
 
     // Admin menu
     add_action('admin_menu', [$this, 'settings_page'] );
-
 
     // Register settings
     add_action( 'admin_init', [$this, 'register_settings'] );
