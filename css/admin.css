@@ -2,12 +2,21 @@
 /*--- Settings Main Table ---*/
 /*---------------------------*/
 #cpt-single-redirects-table {
-  width: auto;
-  max-width: 720px;
+  width: 100%;
+  /*width: auto;*/
+  /*max-width: 720px;*/
   border-collapse: collapse;
 }
 #cpt-single-redirects-table th,
 #cpt-single-redirects-table td {
   padding: 10px 15px;
   border: 1px solid;
+}
+
+
+/*-------------*/
+/*-- Inputs ---*/
+/*-------------*/
+#cpt-single-redirects-table input[type=url] {
+  width: 100%;
 }

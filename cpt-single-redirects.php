@@ -5,7 +5,7 @@
  * Text Domain: cpt_single_redirects
  * Description: This plugin allows the redirection of CPT Single Templates to any URL.
  * Plugin URI: https://github.com/cortesfrau/cpt-single-redirects/
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Lluís Cortès
  * Author URI: https://lluiscortes.com
  * License: GPLv2 or later
