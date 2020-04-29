@@ -25,3 +25,5 @@ Use this plugin to set up 301 redirects for the single templates of registered c
 == Changelog ==
 
 == Frequently Asked Questions ==
+
+== Upgrade Notice ==
