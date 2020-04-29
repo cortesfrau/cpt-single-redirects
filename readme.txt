@@ -20,8 +20,6 @@ Use this plugin to set up 301 redirects for the single templates of registered c
 
 == Screenshots ==
 
-1. Plugin's settings screen.
-
 == Changelog ==
 
 == Frequently Asked Questions ==
